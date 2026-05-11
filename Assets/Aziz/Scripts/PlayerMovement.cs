@@ -6,13 +6,14 @@ public class PlayerMovement : MonoBehaviour
 {
     // movement
     public CharacterController characterController;
-    public float speed = 5f;
-    public float runningSpeed = 2f;
+    public float speed = 3f;
+    public float runningSpeed = 7f;
     public Vector3 velocity;
     public const float gravity = -9.8f;
     public bool grounded;
     public float jumpHeight = 7f;
     public Transform target;
+    public PlayerStamina playerStamina;
 
     // audio
     public AudioSource walking;
@@ -32,7 +33,7 @@ public class PlayerMovement : MonoBehaviour
     {
 
 
-        grounded = characterController.isGrounded;
+            grounded = characterController.isGrounded;
         float Horizontal = Input.GetAxis("Horizontal");
         float Vertical = Input.GetAxis("Vertical");
 
@@ -49,13 +50,19 @@ public class PlayerMovement : MonoBehaviour
         characterController.Move(move * speed * Time.deltaTime);
         characterController.Move(velocity * Time.deltaTime);
 
-        if (Input.GetKey(KeyCode.LeftShift) == true)
+
+        if (Input.GetKey(KeyCode.LeftShift) && playerStamina.currentStamina > 0f && !playerStamina.isExhausted)
         {
-            characterController.Move(move * speed * runningSpeed * Time.deltaTime);
-            characterController.Move(velocity * Time.deltaTime);
-            isRunning = true;
+            playerStamina.Stamina();
+            characterController.Move(move * runningSpeed * Time.deltaTime);
         }
-        else if (Input.GetKey(KeyCode.W))
+
+        else
+        {
+            playerStamina.Regain();
+        }
+
+        if (Input.GetKey(KeyCode.W))
         {
             isMoving = true;
             isRunning = false;
