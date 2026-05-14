@@ -11,7 +11,6 @@ public class CinemachineCameraControls : MonoBehaviour
     public float minPitch = -90f;
 
     private float currentPitch = 0f;
-    private float currentYaw = 0f;
 
     void Start()
     {
@@ -47,14 +46,14 @@ public class CinemachineCameraControls : MonoBehaviour
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-        // Rotate player body (yaw)
-        playerBody.Rotate(Vector3.up * mouseX);
+        // Rotate player body horizontally (yaw/left-right)
+        playerBody.Rotate(Vector3.up * mouseX, Space.World);
 
-        // Rotate camera pitch (up/down)
+        // Rotate camera pitch (up/down) - apply to camera's local rotation
         currentPitch -= mouseY;
         currentPitch = Mathf.Clamp(currentPitch, minPitch, maxPitch);
 
-        // Apply pitch to camera's local rotation
+        // Apply ONLY pitch to camera's local X rotation
         cinemachineCamera.transform.localRotation = Quaternion.Euler(currentPitch, 0f, 0f);
 
         // Unlock cursor with ESC
