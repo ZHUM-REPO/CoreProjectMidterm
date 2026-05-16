@@ -1,121 +1,54 @@
-using Unity.VisualScripting;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    // movement
-    public CharacterController characterController;
-    public float speed = 3f;
-    public float runningSpeed = 7f;
-    public Vector3 velocity;
-    public const float gravity = -9.8f;
-    public bool grounded;
-    public float jumpHeight = 7f;
-    public Transform target;
-    public PlayerStamina playerStamina;
+    public CharacterController controller;
+    public float baseSpeed = 5f;
+    public float gravity = -9.81f;
+    public float jumpHeight = 3f;
+    public float sprintSpeed = 7f;
+    float speedBoost = 1f;
+    Vector3 velocity;
+    PlayerStamina playerStamina;
 
-    // audio
-    public AudioSource walking;
-    public AudioSource running;
-    public AudioSource jump;
-    private bool isMoving;
-    private bool isRunning;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
-
+        playerStamina = GetComponent<PlayerStamina>();
     }
 
-    // Update is called once per frame
     void Update()
     {
+        if (controller.isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+        }
 
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
 
-            grounded = characterController.isGrounded;
-        float Horizontal = Input.GetAxis("Horizontal");
-        float Vertical = Input.GetAxis("Vertical");
+        Vector3 move = transform.right * x + transform.forward * z;
 
+        controller.Move(move * baseSpeed * Time.deltaTime);
 
-        Vector3 camForward = Camera.main.transform.forward;
-        Vector3 camRight = Camera.main.transform.right;
+        velocity.y += gravity * Time.deltaTime;
 
-        camForward.y = 0;
-        camRight.y = 0;
+        controller.Move(velocity * Time.deltaTime);
 
-        Vector3 move = transform.right * Horizontal + transform.forward * Vertical;
-
-
-        characterController.Move(move * speed * Time.deltaTime);
-        characterController.Move(velocity * Time.deltaTime);
-
-
-        if (Input.GetKey(KeyCode.LeftShift) && playerStamina.currentStamina > 0f && !playerStamina.isExhausted)
+        if (Input.GetKey(KeyCode.LeftShift) && !playerStamina.isExhausted)
         {
             playerStamina.Stamina();
-            characterController.Move(move * runningSpeed * Time.deltaTime);
+            controller.Move(move * sprintSpeed * Time.deltaTime);
         }
+
+
 
         else
         {
             playerStamina.Regain();
-        }
-
-        if (Input.GetKey(KeyCode.W))
-        {
-            isMoving = true;
-            isRunning = false;
-        }
-        else
-        {
-            isMoving = false;
-            isRunning = false;
-        }
-
-
-
-        // Debug.Log(grounded);
-
-
-        if (grounded && velocity.y < 0)
-        {
-            velocity.y = -2f;
-
-        }
-
-        velocity.y += gravity * Time.deltaTime;
-
-
-        /*if (Input.GetKey(KeyCode.Space) && grounded)
-        {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            jump.Play();
-
-        }*/
-
-        AudioHandler();
-    }
-
-
-    void AudioHandler()
-    {
-        if (!isMoving)
-        {
-            if (walking != null && walking.isPlaying) walking.Stop();
-            if (running != null && running.isPlaying) running.Stop();
-            return;
-        }
-
-        if (isRunning)
-        {
-            if (walking != null && walking.isPlaying) walking.Stop();
-            if (running != null && !running.isPlaying) running.Play();
-        }
-        else
-        {
-            if (walking != null && !walking.isPlaying) walking.Play();
-            if (running != null && running.isPlaying) running.Stop();
         }
     }
 }
