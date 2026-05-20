@@ -2670,6 +2670,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4680bddeee8ae9945b992a808b183289, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
+  agent: {fileID: 709550201298449709}
+  player: {fileID: 826449614}
+  walkRange: 20
+  chaseRange: 10
+  viewAngle: 90
+  audioSource: {fileID: 126984911}
+  chaseSound: {fileID: 8300000, guid: d6154e799e4425640a72122ca2c3b2d3, type: 3}
 --- !u!4 &939487822 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4607789021669949657, guid: e22fad9e70ae94d42885f95bddd898ce, type: 3}
@@ -12403,7 +12410,7 @@ MonoBehaviour:
   patrolSpeed: 3.5
   viewDistance: 10
   viewAngle: 60
-  visionLight: {fileID: 0}
+  visionLight: {fileID: 516275929}
 --- !u!23 &709550201298449711
 MeshRenderer:
   m_ObjectHideFlags: 0
