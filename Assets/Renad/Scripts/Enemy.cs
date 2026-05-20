@@ -7,23 +7,18 @@ public class enemy : MonoBehaviour
     public NavMeshAgent agent;
     public Transform player;
 
-    [Header("Patrol Points (4 Points)")]
-    public Transform[] points; // حط 4 نقاط هنا في Inspector
-
+    public float walkRange = 20f;
     public float chaseRange = 10f;
     public float viewAngle = 90f;
 
-    public AudioSource audioSource;
-    public AudioClip chaseSound;
+    public AudioSource audioSource; 
+    public AudioClip chaseSound;    
 
-    int currentIndex = 0;
+    Vector3 randomPoint;
 
     void Start()
     {
-        agent.autoBraking = false;
-        agent.stoppingDistance = 0.3f;
-
-        GoToNextPoint();
+        NewPoint();
     }
 
     void Update()
@@ -37,7 +32,6 @@ public class enemy : MonoBehaviour
         if (distance < chaseRange && angle < viewAngle / 2)
         {
             RaycastHit hit;
-
             if (Physics.Raycast(transform.position + Vector3.up, dir, out hit, chaseRange))
             {
                 if (hit.transform == player)
@@ -51,7 +45,7 @@ public class enemy : MonoBehaviour
         {
             agent.SetDestination(player.position);
 
-            if (!audioSource.isPlaying)
+            if (!audioSource.isPlaying) 
             {
                 audioSource.clip = chaseSound;
                 audioSource.Play();
@@ -59,35 +53,31 @@ public class enemy : MonoBehaviour
         }
         else
         {
-            if (audioSource.isPlaying)
-                audioSource.Stop();
+            if (audioSource.isPlaying) audioSource.Stop();
 
-            if (!agent.pathPending && agent.remainingDistance <= 0.5f)
+            if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
             {
-                GoToNextPoint();
+                NewPoint();
             }
-
-            if (!agent.hasPath || agent.velocity.sqrMagnitude < 0.1f)
-            {
-                GoToNextPoint();
-            }
+            agent.SetDestination(randomPoint);
         }
     }
 
-    void GoToNextPoint()
-    {
-        if (points.Length == 0) return;
-
-        agent.SetDestination(points[currentIndex].position);
-
-        currentIndex = (currentIndex + 1) % points.Length;
-    }
-
-    public void OnCollisionEnter(Collision collision)
+    // هذه الدالة هي الحل: بمجرد ما يلمس جسم اللاعب، ينتقل للسين 2
+    private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
             SceneManager.LoadScene(2);
         }
+    }
+
+    void NewPoint()
+    {
+        Vector3 random = Random.insideUnitSphere * walkRange;
+        random += transform.position;
+        NavMeshHit hit;
+        NavMesh.SamplePosition(random, out hit, walkRange, NavMesh.AllAreas);
+        randomPoint = hit.position;
     }
 }
